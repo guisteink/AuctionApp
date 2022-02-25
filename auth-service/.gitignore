@@ -1,0 +1,6 @@
+node_modules
+.serverless
+secret.pem
+.webpack
+package-lock.json
+yarn.lock
