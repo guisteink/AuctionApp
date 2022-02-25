@@ -10,34 +10,25 @@ const dynamodb = new AWS.DynamoDB.DocumentClient();
 
 async function placeBid(event, context)
 {
-    const id = _.get(event, 'pathParameters.id', null)
-    const amount = _.get(event, 'body.amount', null)
-    const auction = await getAuctionById(id)
+    const id = _.get(event, 'pathParameters.id', null);
+    const amount = _.get(event, 'body.amount', null);
+    const auction = await getAuctionById(id);
+    const email = _.get(event, 'requestContext.authorizer.email');
 
-    // ?business rule
+    // ? business rule ?
     if (!auction) throw new createError.NotFound(`Auction with ID "${id}" not found!`)
     if (auction.status !== 'OPEN') throw new createError.Forbidden('YOU CANNOT BID ON CLOSE AUCITONS');
     if (amount <= auction.highestBid.amount) throw new createError.Forbidden(`YOUR BID AMOUNT MUST BE HIGHER THAN CURRENT ONE i.e ${auction.highestBid.amount}`);
-
-    // ? Bid Identity validator
-    // if (email === auction.seller) {
-    //     throw new createError.Forbidden('YOU CANNOT BID ON YOUR OWN AUCTION');
-    // }
-    // ?Avoid double bidding
-    // if (email === auction.highestBid.bidder) {
-    //     throw new createError.Forbidden('YOU ALREADY HAVE THE HIGHEST BID');
-    // }
+    if (email === auction.seller) throw new createError.Forbidden('YOU CANNOT BID ON YOUR OWN AUCTION');
+    if (email === auction.highestBid.bidder) throw new createError.Forbidden('YOU ALREADY HAVE THE HIGHEST BID');
 
     const params = {
         TableName: process.env.AUCTIONS_TABLE_NAME,
         Key: { id },
-        UpdateExpression: 'SET #highestBid.#amount = :amount',
-        ExpressionAttributeNames: {
-            '#highestBid': 'highestBid',
-            '#amount': 'amount'
-        },
+        UpdateExpression: 'SET highestBid.amount = :amount, highestBid.bidder = :bidder',
         ExpressionAttributeValues: {
             ':amount': amount,
+            ':bidder': email
         },
         ReturnValues: 'ALL_NEW',
     };
