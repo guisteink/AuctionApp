@@ -28,7 +28,7 @@ export async function closeAuction(auction)
          MessageBody: JSON.stringify({
             subject: 'Your auction is not sold :(',
             recipient: seller,
-            body: `we are very sorry to inform you that your auction titled ${title} is not sold. Try again later.s`
+            body: `We are very sorry to inform you that your auction "${title}" is not sold. Try again another time.`
          }),
       }).promise();
       return;
@@ -37,18 +37,18 @@ export async function closeAuction(auction)
    const notifySeller = sqs.sendMessage({
       QueueUrl: process.env.MAIL_QUEUE_URL,
       MessageBody: JSON.stringify({
-         subject: `Your item "${title}" has been sold`,
+         subject: `Your item "${title}" has been sold!`,
          recipient: seller,
-         body: `Congratulations!! Your item is sold.\nItem: ${title}, Amount: ${amount}.`
+         body: `Congratulations!! Your item is sold.\n\tItem: ${title}\n\tAmount: ${amount}.`
       }),
    }).promise();
 
    const notifyBidder = sqs.sendMessage({
       QueueUrl: process.env.MAIL_QUEUE_URL,
       MessageBody: JSON.stringify({
-         subject: `You won the action of ${title}`,
+         subject: `You won the action of ${title}!`,
          recipient: bidder,
-         body: `Great!! you got ${title} in auction for Rs.${amount}`
+         body: `Great!! you got ${title} in auction for ${amount}.`
       }),
    }).promise();
 
