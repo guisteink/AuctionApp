@@ -3,4 +3,5 @@ node_modules
 secret.pem
 .webpack
 package-lock.json
-yarn.lock
+yarn.lockfile
+README.md

@@ -7,3 +7,7 @@ jspm_packages
 
 # Webpack directories
 .webpack
+
+README.md
+package-lock.json
+yarn.lock
