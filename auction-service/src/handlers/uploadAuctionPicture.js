@@ -3,6 +3,7 @@ import httpErrorHandler from '@middy/http-error-handler';
 import validator from '@middy/validator';
 import cors from '@middy/http-cors';
 import createError from 'http-errors';
+
 import { getAuctionById } from './getAuction';
 import { uploadPictureToS3 } from '../lib/UploadPictureToS3';
 import { setAuctionPictureUrl } from '../lib/setAuctionPicture';
@@ -32,7 +33,7 @@ export async function uploadAuctionPicture(event)
 
    return {
       statusCode: 200,
-      body: JSON.stringify({ updatedAuction })
+      body: JSON.stringify(updatedAuction)
    };
 }
 
