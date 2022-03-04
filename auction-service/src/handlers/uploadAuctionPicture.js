@@ -45,5 +45,4 @@ export const handler = middy(uploadAuctionPicture)
          useDefaults: true,
          strict: false,
       },
-   }))
-   .use(cors());
+   })).use(cors());
