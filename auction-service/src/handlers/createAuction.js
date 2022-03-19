@@ -3,7 +3,9 @@ import AWS from 'aws-sdk';
 import createError from 'http-errors';
 import commomMiddleware from '../lib/commomMiddleware';
 import validator from '@middy/validator';
+
 import createAuctionSchema from '../lib/schemas/createAuctionSchema';
+import { setAuctionPicture } from './uploadAuctionPicture'
 
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 
@@ -14,6 +16,9 @@ async function createAuction(event, context)
   const now = new Date();
   const endDate = new Date();
   endDate.setHours(now.getHours() + 23)
+
+  let auctionPicture;
+  if (event?.body?.picture) auctionPicture = event.body.picture;
 
   const auction = {
     id: uuid(),
@@ -30,6 +35,8 @@ async function createAuction(event, context)
       TableName: process.env.AUCTIONS_TABLE_NAME,
       Item: auction
     }).promise();
+
+    if (auctionPicture) await setAuctionPicture(auction.id, email, auctionPicture);
   } catch (error) {
     console.log(error);
     throw new createError.InternalServerError(error)

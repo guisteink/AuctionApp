@@ -44,7 +44,7 @@ functions:
           method: GET
           cors: true
           path: /auctions
-          authorizer: ${self:custom.authorizer}
+          # authorizer: ${self:custom.authorizer}
           
   getAuction:
     handler: src/handlers/getAuction.handler

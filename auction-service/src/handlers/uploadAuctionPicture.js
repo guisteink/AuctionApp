@@ -9,6 +9,32 @@ import { uploadPictureToS3 } from '../lib/UploadPictureToS3';
 import { setAuctionPictureUrl } from '../lib/setAuctionPicture';
 import uploadAuctionPictureSchema from '../lib/schemas/uploadAuctionPictureSchema';
 
+export async function setAuctionPicture(id, email, data)
+{
+   const auction = await getAuctionById(id);
+
+   //validate auction ownership
+   if (auction.seller !== email) {
+      throw new createError.Forbidden('You are not seller of this auction');
+   }
+
+   const base64 = data.replace(/^data:image\/\w+;base64,/, '');
+   const buffer = Buffer.from(base64, 'base64');
+   let updatedAuction;
+
+   try {
+      const pictureUrl = await uploadPictureToS3(auction.id + '.jpg', buffer);
+      updatedAuction = await setAuctionPictureUrl(auction.id, pictureUrl);
+   } catch (error) {
+      throw new createError.InternalServerError(error);
+   }
+
+   return {
+      statusCode: 200,
+      body: JSON.stringify(updatedAuction)
+   };
+}
+
 export async function uploadAuctionPicture(event)
 {
    const { id } = event.pathParameters;
